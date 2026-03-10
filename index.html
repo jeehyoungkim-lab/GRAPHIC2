@@ -2,10 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>GRAPHIC Tools</title>
+<title>Graphs for Research Articles Tools</title>
 <style>
-  /* 원본 레이아웃 및 디자인 유지 */
-  html, body { height: 100%; margin:0; font-family: Arial, sans-serif; background-color: #fdfefe; overflow-x: hidden; }
+  /* 전체 레이아웃 유지 */
+  html, body { height: 100%; }
+  body { font-family: Arial, sans-serif; background-color: #fdfefe; margin:0; overflow-x: hidden; }
   h2 { color: #0F4E47; text-align:center; padding:20px; margin:0; }
 
   .grid {
@@ -14,6 +15,7 @@
     gap: 15px;
     padding: 20px;
     box-sizing: border-box;
+    max-width: 100%;
   }
 
   .tile-box {
@@ -22,69 +24,103 @@
     display: flex;
     flex-direction: column;
     aspect-ratio: 1 / 1;
+    box-sizing: border-box;
     position: relative;
     overflow: hidden;
-    cursor: pointer;
   }
 
   .tile-title {
     flex: 0 0 40px;
     color: #FDFEFE;
     font-weight: bold;
-    font-size: 16px;
+    font-size: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 5;
+    text-align: center;
+    padding: 0 5px;
   }
 
-  .tile-img-wrap { flex: 1; width: 100%; position: relative; }
-  .tile-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill; z-index: 1; }
+  .tile-img-wrap {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+  }
 
-  /* [추가된 버튼 레이어] 마우스 올릴 때만 이미지 위에 나타남 */
-  .button-overlay {
+  .tile-img {
     position: absolute;
-    inset: 0; /* 이미지 영역 전체 차지 */
-    display: none; /* 평소엔 숨김 */
-    grid-template-columns: 1fr 1fr; /* 2열 */
-    grid-auto-rows: 1fr; /* 높이 균등 */
-    gap: 2px;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+  }
+
+  /* --- 버튼 크기 및 격자 구조 수정 --- */
+  .tile-overlay {
+    position: absolute;
+    top: 40px;
+    left: 0;
+    width: 100%;
+    height: calc(100% - 40px);
+    background: rgba(15, 78, 71, 0.6); /* 이미지 보이게 투명도 조정 */
+    
+    /* 버튼들을 2열 격자로 배치하고 높이를 꽉 채움 */
+    display: grid;
+    grid-template-columns: 1fr 1fr; 
+    grid-auto-rows: 1fr; /* 버튼이 영역 높이를 균등하게 나눠 가짐 */
+    gap: 2px; /* 버튼 사이 경계선 */
+    
+    opacity: 0;
+    visibility: hidden; /* 평소엔 숨겨서 이미지 가림 방지 */
+    transition: opacity 0.3s ease;
     z-index: 10;
-    background: rgba(15, 78, 71, 0.4); /* 이미지 살짝 보임 */
   }
 
-  .tile-img-wrap:hover .button-overlay {
-    display: grid; /* 마우스 오버 시에만 그리드로 표시 */
+  .tile-box:hover .tile-overlay {
+    opacity: 1;
+    visibility: visible;
   }
 
-  .btn-item {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(255, 255, 255, 0.95);
+  .btn-link {
+    background: #FDFEFE;
     color: #0F4E47;
     text-decoration: none;
-    font-size: 15px;
+    
+    /* 버튼 내부 글자 중앙 정렬 및 크기 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px; 
     font-weight: bold;
+    text-align: center;
     border: 1px solid #0F4E47;
     box-sizing: border-box;
   }
 
-  .btn-item:hover { background: #FFEB3B; color: black; }
+  /* 버튼 개수에 따른 배치 로직 */
+  .btn-link:only-child { grid-column: span 2; } /* 1개일 때 전체 차지 */
+  .btn-link:nth-child(3):last-child { grid-column: span 2; } /* 3개일 때 막내 가로 확장 */
 
-  /* 버튼 개수 대응 */
-  .btn-item:only-child { grid-column: span 2; }
-  .btn-item:nth-child(3):last-child { grid-column: span 2; }
+  .btn-link:hover {
+    background: #FFEB3B;
+    color: #000;
+  }
 
-  /* 뷰어 스타일 */
+  /* 뷰어 영역 */
   #viewer { display:none; width:100%; height:100vh; flex-direction: column; }
   #viewer iframe { flex:1; width:100%; border:none; }
-  #backBtn { background:#FDFEFE; color:#0F4E47; border:1px solid #0F4E47; border-radius:8px; font-size:18px; font-weight:bold; padding:10px 20px; margin:10px; cursor:pointer; align-self:flex-end; }
+  #backBtn {
+    background:#FDFEFE; color:#0F4E47; border:1px solid #0F4E47;
+    border-radius:8px; font-size:18px; font-weight:bold;
+    padding:10px 20px; margin:10px; cursor:pointer; align-self:flex-end;
+  }
 </style>
 </head>
 <body>
 
-<h2 id="mainTitle">Graphs for Research Articles Tools</h2>
+<h2 id="mainTitle">Graphs for Research Articles: Precision, Honesty, and Informative Communication(GRAPHIC) Tools</h2>
 
 <div id="grid" class="grid"></div>
 
@@ -95,32 +131,31 @@
 
 <script>
 const apps = [
- { name:"Boxplot and jitter plot", url:"https://play237.shinyapps.io", img:"https://jeehyoungkim-lab.github.io" },
- { name:"Plot with error bar", url:"https://play240.shinyapps.io", img:"https://jeehyoungkim-lab.github.io" },
- // 테스트용: url에 여러 주소를 넣으면 4분할 버튼이 생깁니다.
- { name:"Plot with significance", url:["https://play241.shinyapps.io", "#link2", "#link3", "#link4"], img:"https://jeehyoungkim-lab.github.io" },
- { name:"RainCloud plot", url:"https://play274.shinyapps.io", img:"https://jeehyoungkim-lab.github.io" },
- { name:"Densitogram and Histogram", url:"https://play242.shinyapps.io", img:"https://jeehyoungkim-lab.github.io" },
- { name:"Scatter plot with label", url:"https://play277.shinyapps.io", img:"https://jeehyoungkim-lab.github.io" },
- { name:"Matrix Correlations", url:"https://play276.shinyapps.io", img:"https://jeehyoungkim-lab.github.io" },
- { name:"LOWESS", url:"https://play239.shinyapps.io", img:"https://jeehyoungkim-lab.github.io" },
- { name:"count bar with CI", url:"https://play234.shinyapps.io", img:"https://jeehyoungkim-lab.github.io" },
- { name:"Matrix bubble plot", url:"https://play120.shinyapps.io", img:"https://jeehyoungkim-lab.github.io" },
- { name:"Alluvial Diagrams(1)", url:"https://play235.shinyapps.io", img:"https://jeehyoungkim-lab.github.io" },
- { name:"Alluvial Diagrams(2)", url:"https://play236.shinyapps.io", img:"https://jeehyoungkim-lab.github.io" },
- { name:"Kaplan-Meier curve", url:"https://play236.shinyapps.io", img:"https://raw.githubusercontent.com" },
- { name:"Coefficients Plot", url:"https://play278.shinyapps.io", img:"https://jeehyoungkim-lab.github.io" },
- { name:"Forest plots for Subgroups", url:"https://play273.shinyapps.io", img:"https://jeehyoungkim-lab.github.io" },
- { name:"Baseline Table", url:"https://play275.shinyapps.io", img:"https://jeehyoungkim-lab.github.io" },
+ { name:"Boxplot and jitter plot", url:"https://play237.shinyapps.io/jitterboxplot4/", img:"https://jeehyoungkim-lab.github.io/images/tool1.png" },
+ { name:"Plot with error bar", url:"https://play240.shinyapps.io/pubr_error_bar4/", img:"https://jeehyoungkim-lab.github.io/images/tool19.png" },
+ { name:"Plot with significance", url:["https://play241.shinyapps.io/Plot_Significance4/", "#2", "#3", "#4"], img:"https://jeehyoungkim-lab.github.io/images/tool20.png" },
+ { name:"RainCloud plot", url:"https://play274.shinyapps.io/RainCloud_Plot/", img:"https://jeehyoungkim-lab.github.io/images/raincloud.png" },
+ { name:"Densitogram and Histogram", url:"https://play242.shinyapps.io/densitogram-histogram/", img:"https://jeehyoungkim-lab.github.io/images/tool24.png" },
+ { name:"Scatter plot with label", url:"https://play277.shinyapps.io/Scatter_name/", img:"https://jeehyoungkim-lab.github.io/images/Scatter%20plot%20with%20name.png" },
+ { name:"Matrix Correlations", url:"https://play276.shinyapps.io/MatrixCorrelations/", img:"https://jeehyoungkim-lab.github.io/images/Matrix%20Correlations.png" },
+ { name:"LOWESS", url:"https://play239.shinyapps.io/LOWESS4/", img:"https://jeehyoungkim-lab.github.io/images/tool7.png" },
+ { name:"count bar with CI", url:"https://play234.shinyapps.io/count_CI/", img:"https://jeehyoungkim-lab.github.io/images/Count%20bar%20with%20CI.PNG" },
+ { name:"Matrix bubble plot", url:"https://play120.shinyapps.io/D_Matrix_Bubble/", img:"https://jeehyoungkim-lab.github.io/images/Matrix%20bubble%20plot.png" },
+ { name:"Alluvial Diagrams(1)", url:"https://play235.shinyapps.io/D_Alluvial_Diagrams/", img:"https://jeehyoungkim-lab.github.io/images/alluvial%20plot.png" },
+ { name:"Alluvial Diagrams(2)", url:"https://play236.shinyapps.io/Alluvial_Diagrams/", img:"https://jeehyoungkim-lab.github.io/images/Alluvial-Diagrams(II).PNG" },
+ { name:"Kaplan-Meier curve", url:"https://play236.shinyapps.io/survival4/", img:"https://raw.githubusercontent.com/jeehyoungkim-lab/images/288aaf842cb54b86ff917204ab6a4423377ce192/tool2.svg" },
+ { name:"Coefficients Plot", url:"https://play278.shinyapps.io/Coefficients_Plot/", img:"https://jeehyoungkim-lab.github.io/images/Coefficients%20Plot.PNG" },
+ { name:"Forest plots for Subgroups", url:"https://play273.shinyapps.io/Forest4Subgroups/", img:"https://jeehyoungkim-lab.github.io/images/Forest%20plots%20for%20Subgroups.PNG" },
+ { name:"Baseline Table", url:"https://play275.shinyapps.io/D_Baseline/", img:"https://jeehyoungkim-lab.github.io/images/table1.png" },
 ];
 
 const grid = document.getElementById("grid");
 
-function openApp(targetUrl) {
-  if(!targetUrl || targetUrl.startsWith("#")) return;
+function openApp(url) {
+  if(!url || url.startsWith("#")) return;
   document.getElementById("grid").style.display = "none";
   document.getElementById("viewer").style.display = "flex";
-  document.getElementById("appFrame").src = targetUrl;
+  document.getElementById("appFrame").src = url;
   document.getElementById("mainTitle").style.display = "none";
 }
 
@@ -128,46 +163,38 @@ apps.forEach(app => {
   const tile = document.createElement("div");
   tile.className = "tile-box";
 
-  // 1. 제목 추가
   const titleDiv = document.createElement("div");
   titleDiv.className = "tile-title";
   titleDiv.textContent = app.name;
-  tile.appendChild(titleDiv);
 
-  // 2. 이미지 래퍼 생성
-  const imgWrap = document.createElement("div");
-  imgWrap.className = "tile-img-wrap";
-
-  // 3. 이미지 추가
+  const wrap = document.createElement("div");
+  wrap.className = "tile-img-wrap";
   const img = document.createElement("img");
   img.className = "tile-img";
   img.src = app.img;
-  imgWrap.appendChild(img);
+  wrap.appendChild(img);
 
-  // 4. 버튼 오버레이 추가
   const overlay = document.createElement("div");
-  overlay.className = "button-overlay";
+  overlay.className = "tile-overlay";
 
   const urlList = Array.isArray(app.url) ? app.url : [app.url];
-  urlList.forEach((link, idx) => {
-    const btn = document.createElement("div");
-    btn.className = "btn-item";
-    btn.textContent = urlList.length > 1 ? `Link ${idx + 1}` : "Run App";
+  
+  urlList.forEach((link, index) => {
+    const btn = document.createElement("a");
+    btn.href = "#";
+    btn.className = "btn-link";
+    // 높이가 3배가 되었으므로 텍스트도 잘 보입니다.
+    btn.textContent = urlList.length > 1 ? `Link ${index + 1}` : "Run App";
     btn.onclick = (e) => {
-      e.stopPropagation(); // 부모 타일 클릭 방지
+      e.preventDefault();
       openApp(link);
     };
     overlay.appendChild(btn);
   });
 
-  imgWrap.appendChild(overlay);
-  tile.appendChild(imgWrap);
-
-  // 타일 자체 클릭 시 (기본 동작 유지)
-  tile.onclick = () => {
-    if(!Array.isArray(app.url)) openApp(app.url);
-  };
-
+  tile.appendChild(titleDiv);
+  tile.appendChild(wrap);
+  tile.appendChild(overlay);
   grid.appendChild(tile);
 });
 
