@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Graphs for Research Articles Tools</title>
+<title>GRAPHIC Tools</title>
 <style>
-  /* [기본 스타일 유지] */
+  /* 원본 레이아웃 및 디자인 유지 */
   html, body { height: 100%; margin:0; font-family: Arial, sans-serif; background-color: #fdfefe; overflow-x: hidden; }
   h2 { color: #0F4E47; text-align:center; padding:20px; margin:0; }
 
@@ -35,29 +35,29 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    z-index: 5;
   }
 
   .tile-img-wrap { flex: 1; width: 100%; position: relative; }
-  .tile-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill; }
+  .tile-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill; z-index: 1; }
 
-  /* [버튼 오버레이 스타일 추가] */
-  .tile-overlay {
+  /* [추가된 버튼 레이어] 마우스 올릴 때만 이미지 위에 나타남 */
+  .button-overlay {
     position: absolute;
-    top: 40px; /* 제목 제외한 아래 영역 */
-    left: 0;
-    width: 100%;
-    height: calc(100% - 40px);
+    inset: 0; /* 이미지 영역 전체 차지 */
     display: none; /* 평소엔 숨김 */
-    grid-template-columns: 1fr 1fr; /* 2열 고정 */
-    grid-auto-rows: 1fr; /* 개수에 따라 높이 자동 배분 */
-    gap: 1px;
+    grid-template-columns: 1fr 1fr; /* 2열 */
+    grid-auto-rows: 1fr; /* 높이 균등 */
+    gap: 2px;
     z-index: 10;
+    background: rgba(15, 78, 71, 0.4); /* 이미지 살짝 보임 */
   }
 
-  /* 마우스 올릴 때만 버튼 레이어 보임 */
-  .tile-box:hover .tile-overlay { display: grid; }
+  .tile-img-wrap:hover .button-overlay {
+    display: grid; /* 마우스 오버 시에만 그리드로 표시 */
+  }
 
-  .btn-link {
+  .btn-item {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -67,15 +67,16 @@
     font-size: 15px;
     font-weight: bold;
     border: 1px solid #0F4E47;
+    box-sizing: border-box;
   }
 
-  /* 버튼 개수별 예외 처리 */
-  .btn-link:only-child { grid-column: span 2; } /* 1개면 꽉 채움 */
-  .btn-link:nth-child(3):last-child { grid-column: span 2; } /* 3개면 마지막 버튼 길게 */
+  .btn-item:hover { background: #FFEB3B; color: black; }
 
-  .btn-link:hover { background: #FFEB3B; color: black; }
+  /* 버튼 개수 대응 */
+  .btn-item:only-child { grid-column: span 2; }
+  .btn-item:nth-child(3):last-child { grid-column: span 2; }
 
-  /* [뷰어 스타일 유지] */
+  /* 뷰어 스타일 */
   #viewer { display:none; width:100%; height:100vh; flex-direction: column; }
   #viewer iframe { flex:1; width:100%; border:none; }
   #backBtn { background:#FDFEFE; color:#0F4E47; border:1px solid #0F4E47; border-radius:8px; font-size:18px; font-weight:bold; padding:10px 20px; margin:10px; cursor:pointer; align-self:flex-end; }
@@ -96,8 +97,8 @@
 const apps = [
  { name:"Boxplot and jitter plot", url:"https://play237.shinyapps.io", img:"https://jeehyoungkim-lab.github.io" },
  { name:"Plot with error bar", url:"https://play240.shinyapps.io", img:"https://jeehyoungkim-lab.github.io" },
- // 테스트용: url에 배열을 넣으면 버튼이 여러 개 생깁니다.
- { name:"Plot with significance", url:["https://play241.shinyapps.io", "#2", "#3", "#4"], img:"https://jeehyoungkim-lab.github.io" },
+ // 테스트용: url에 여러 주소를 넣으면 4분할 버튼이 생깁니다.
+ { name:"Plot with significance", url:["https://play241.shinyapps.io", "#link2", "#link3", "#link4"], img:"https://jeehyoungkim-lab.github.io" },
  { name:"RainCloud plot", url:"https://play274.shinyapps.io", img:"https://jeehyoungkim-lab.github.io" },
  { name:"Densitogram and Histogram", url:"https://play242.shinyapps.io", img:"https://jeehyoungkim-lab.github.io" },
  { name:"Scatter plot with label", url:"https://play277.shinyapps.io", img:"https://jeehyoungkim-lab.github.io" },
@@ -116,7 +117,7 @@ const apps = [
 const grid = document.getElementById("grid");
 
 function openApp(targetUrl) {
-  if(!targetUrl) return;
+  if(!targetUrl || targetUrl.startsWith("#")) return;
   document.getElementById("grid").style.display = "none";
   document.getElementById("viewer").style.display = "flex";
   document.getElementById("appFrame").src = targetUrl;
@@ -127,32 +128,45 @@ apps.forEach(app => {
   const tile = document.createElement("div");
   tile.className = "tile-box";
 
-  // 기본 제목과 이미지 구성
-  tile.innerHTML = `
-    <div class="tile-title">${app.name}</div>
-    <div class="tile-img-wrap">
-      <img src="${app.img}" class="tile-img">
-    </div>
-    <div class="tile-overlay"></div>
-  `;
+  // 1. 제목 추가
+  const titleDiv = document.createElement("div");
+  titleDiv.className = "tile-title";
+  titleDiv.textContent = app.name;
+  tile.appendChild(titleDiv);
 
-  const overlay = tile.querySelector(".tile-overlay");
+  // 2. 이미지 래퍼 생성
+  const imgWrap = document.createElement("div");
+  imgWrap.className = "tile-img-wrap";
+
+  // 3. 이미지 추가
+  const img = document.createElement("img");
+  img.className = "tile-img";
+  img.src = app.img;
+  imgWrap.appendChild(img);
+
+  // 4. 버튼 오버레이 추가
+  const overlay = document.createElement("div");
+  overlay.className = "button-overlay";
+
   const urlList = Array.isArray(app.url) ? app.url : [app.url];
-  
-  // 버튼 생성 루프
-  urlList.forEach((link, index) => {
-    const btn = document.createElement("a");
-    btn.className = "btn-link";
-    btn.textContent = urlList.length > 1 ? `Link ${index + 1}` : "Run App";
+  urlList.forEach((link, idx) => {
+    const btn = document.createElement("div");
+    btn.className = "btn-item";
+    btn.textContent = urlList.length > 1 ? `Link ${idx + 1}` : "Run App";
     btn.onclick = (e) => {
-      e.stopPropagation(); // 타일 자체 클릭 이벤트 방지
+      e.stopPropagation(); // 부모 타일 클릭 방지
       openApp(link);
     };
     overlay.appendChild(btn);
   });
 
-  // 타일 자체를 눌러도 첫 번째 링크 실행 (기존 편의성 유지)
-  tile.onclick = () => openApp(urlList[0]);
+  imgWrap.appendChild(overlay);
+  tile.appendChild(imgWrap);
+
+  // 타일 자체 클릭 시 (기본 동작 유지)
+  tile.onclick = () => {
+    if(!Array.isArray(app.url)) openApp(app.url);
+  };
 
   grid.appendChild(tile);
 });
