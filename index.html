@@ -5,11 +5,12 @@
 <title>Graphs for Research Articles: Precision, Honesty, and Informative Communication(GRAPHIC) Tools</title>
 <style>
   /* 전체 레이아웃 기본 */
-  html, body { height: 100%; }
-  body { font-family: Arial, sans-serif; background-color: #fdfefe; margin:0; overflow-x: hidden; }
+  html, body { height: 100%; margin:0; font-family: Arial, sans-serif; background-color: #fdfefe; overflow-x: hidden; }
 
+  /* 제목 */
   h2 { color: #0F4E47; text-align:center; padding:20px; margin:0; }
 
+  /* 4열 고정 그리드 */
   .grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -19,33 +20,36 @@
     max-width: 100%;
   }
 
+  /* 타일 박스 */
   .tile-box {
     background-color: #0F4E47;
     border: 1px solid #ccc;
     display: flex;
     flex-direction: column;
     aspect-ratio: 1 / 1;
-    box-sizing: border-box;
-    position: relative; /* overlay 기준점 */
+    position: relative;
     overflow: hidden;
+    box-sizing: border-box;
   }
 
+  /* 제목 영역 */
   .tile-title {
     flex: 0 0 40px;
     color: #FDFEFE;
     font-weight: bold;
-    font-size: 14px; /* 글자 크기 살짝 조정 */
+    font-size: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
     padding: 0 5px;
+    z-index: 5;
   }
 
+  /* 이미지 영역 */
   .tile-img-wrap {
     flex: 1;
     width: 100%;
-    height: 100%;
     position: relative;
     overflow: hidden;
   }
@@ -58,23 +62,20 @@
     object-fit: fill;
   }
 
-  /* --- 추가된 오버레이 스타일 --- */
+  /* --- 4분할 버튼 오버레이 --- */
   .tile-overlay {
     position: absolute;
     top: 40px; /* 제목 아래부터 시작 */
     left: 0;
     width: 100%;
     height: calc(100% - 40px);
-    background: rgba(15, 78, 71, 0.85); /* 브랜드 컬러 배경 */
-    display: flex;
-    flex-wrap: wrap;
-    align-content: center;
-    justify-content: center;
-    gap: 8px;
+    background: rgba(15, 78, 71, 0.4); /* 이미지 살짝 보이게 투명도 조절 */
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 기본 2열 */
+    grid-auto-rows: 1fr; /* 높이 균등 분할 */
+    gap: 1px; /* 버튼 사이 경계선 효과 */
     opacity: 0;
     transition: opacity 0.3s ease;
-    padding: 10px;
-    box-sizing: border-box;
     z-index: 10;
   }
 
@@ -82,30 +83,54 @@
     opacity: 1;
   }
 
+  /* 버튼 스타일 */
   .btn-link {
-    background: #FDFEFE;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.95);
     color: #0F4E47;
     text-decoration: none;
-    padding: 6px 10px;
-    border-radius: 4px;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: bold;
-    min-width: 70px;
     text-align: center;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    padding: 5px;
+    transition: background 0.2s;
+    border: 0.5px solid #0F4E47;
   }
+
+  /* 버튼 배치 로직 */
+  .btn-link:only-child { grid-column: span 2; } /* 1개일 때 꽉 채움 */
+  .btn-link:nth-child(3):last-child { grid-column: span 2; } /* 3개일 때 마지막 버튼 가로 확장 */
 
   .btn-link:hover {
     background: #FFEB3B;
+    color: #000;
   }
 
-  /* 뷰어 영역 */
-  #viewer { display:none; width:100%; height:100vh; flex-direction: column; }
-  #viewer iframe { flex:1; width:100%; border:none; }
+  /* 뷰어(iframe) 영역 */
+  #viewer {
+    display:none;
+    width:100%;
+    height:100vh;
+    flex-direction: column;
+  }
+  #viewer iframe {
+    flex:1;
+    width:100%;
+    border:none;
+  }
   #backBtn {
-    background:#FDFEFE; color:#0F4E47; border:1px solid #0F4E47;
-    border-radius:8px; font-size:18px; font-weight:bold;
-    padding:10px 20px; margin:10px; cursor:pointer; align-self:flex-end;
+    background:#FDFEFE;
+    color:#0F4E47;
+    border:1px solid #0F4E47;
+    border-radius:8px;
+    font-size:18px;
+    font-weight:bold;
+    padding:10px 20px;
+    margin:10px;
+    cursor:pointer;
+    align-self:flex-end;
   }
 </style>
 </head>
@@ -121,65 +146,63 @@
 </div>
 
 <script>
-// 데이터 구조: url 부분에 ["주소1", "주소2"] 처럼 배열을 넣으면 버튼이 여러 개 생깁니다.
 const apps = [
- { name:"Boxplot and jitter plot", url:"https://play237.shinyapps.io/jitterboxplot4/", img:"https://jeehyoungkim-lab.github.io/images/tool1.png" },
- { name:"Plot with error bar", url:"https://play240.shinyapps.io/pubr_error_bar4/", img:"https://jeehyoungkim-lab.github.io/images/tool19.png" },
- { name:"Plot with significance", url:["https://play241.shinyapps.io/Plot_Significance4/", "#link2", "#link3", "#link4"], img:"https://jeehyoungkim-lab.github.io/images/tool20.png" }, // 예시: 4개 주소
- { name:"RainCloud plot", url:"https://play274.shinyapps.io/RainCloud_Plot/", img:"https://jeehyoungkim-lab.github.io/images/raincloud.png" },
- { name:"Densitogram and Histogram", url:"https://play242.shinyapps.io/densitogram-histogram/", img:"https://jeehyoungkim-lab.github.io/images/tool24.png" },
- { name:"Scatter plot with label", url:"https://play277.shinyapps.io/Scatter_name/", img:"https://jeehyoungkim-lab.github.io/images/Scatter%20plot%20with%20name.png" },
- { name:"Matrix Correlations", url:"https://play276.shinyapps.io/MatrixCorrelations/", img:"https://jeehyoungkim-lab.github.io/images/Matrix%20Correlations.png" },
- { name:"LOWESS", url:"https://play239.shinyapps.io/LOWESS4/", img:"https://jeehyoungkim-lab.github.io/images/tool7.png" },
- { name:"count bar with CI", url:"https://play234.shinyapps.io/count_CI/", img:"https://jeehyoungkim-lab.github.io/images/Count%20bar%20with%20CI.PNG" },
- { name:"Matrix bubble plot", url:"https://play120.shinyapps.io/D_Matrix_Bubble/", img:"https://jeehyoungkim-lab.github.io/images/Matrix%20bubble%20plot.png" },
- { name:"Alluvial Diagrams(1)", url:"https://play235.shinyapps.io/D_Alluvial_Diagrams/", img:"https://jeehyoungkim-lab.github.io/images/alluvial%20plot.png" },
- { name:"Alluvial Diagrams(2)", url:"https://play236.shinyapps.io/Alluvial_Diagrams/", img:"https://jeehyoungkim-lab.github.io/images/Alluvial-Diagrams(II).PNG" },
- { name:"Kaplan-Meier curve", url:"https://play236.shinyapps.io/survival4/", img:"https://raw.githubusercontent.com/jeehyoungkim-lab/images/288aaf842cb54b86ff917204ab6a4423377ce192/tool2.svg" },
- { name:"Coefficients Plot", url:"https://play278.shinyapps.io/Coefficients_Plot/", img:"https://jeehyoungkim-lab.github.io/images/Coefficients%20Plot.PNG" },
- { name:"Forest plots for Subgroups", url:"https://play273.shinyapps.io/Forest4Subgroups/", img:"https://jeehyoungkim-lab.github.io/images/Forest%20plots%20for%20Subgroups.PNG" },
- { name:"Baseline Table", url:"https://play275.shinyapps.io/D_Baseline/", img:"https://jeehyoungkim-lab.github.io/images/table1.png" },
+ { name:"Boxplot and jitter plot", url:"https://play237.shinyapps.io", img:"https://jeehyoungkim-lab.github.io" },
+ { name:"Plot with error bar", url:"https://play240.shinyapps.io", img:"https://jeehyoungkim-lab.github.io" },
+ // 테스트용: url에 배열을 넣어 여러 버튼 생성 가능
+ { name:"Plot with significance", url:["https://play241.shinyapps.io", "#link2", "#link3", "#link4"], img:"https://jeehyoungkim-lab.github.io" },
+ { name:"RainCloud plot", url:"https://play274.shinyapps.io", img:"https://jeehyoungkim-lab.github.io" },
+ { name:"Densitogram and Histogram", url:"https://play242.shinyapps.io", img:"https://jeehyoungkim-lab.github.io" },
+ { name:"Scatter plot with label", url:"https://play277.shinyapps.io", img:"https://jeehyoungkim-lab.github.io" },
+ { name:"Matrix Correlations", url:"https://play276.shinyapps.io", img:"https://jeehyoungkim-lab.github.io" },
+ { name:"LOWESS", url:"https://play239.shinyapps.io", img:"https://jeehyoungkim-lab.github.io" },
+ { name:"count bar with CI", url:"https://play234.shinyapps.io", img:"https://jeehyoungkim-lab.github.io" },
+ { name:"Matrix bubble plot", url:"https://play120.shinyapps.io", img:"https://jeehyoungkim-lab.github.io" },
+ { name:"Alluvial Diagrams(1)", url:"https://play235.shinyapps.io", img:"https://jeehyoungkim-lab.github.io" },
+ { name:"Alluvial Diagrams(2)", url:"https://play236.shinyapps.io", img:"https://jeehyoungkim-lab.github.io" },
+ { name:"Kaplan-Meier curve", url:"https://play236.shinyapps.io", img:"https://raw.githubusercontent.com" },
+ { name:"Coefficients Plot", url:"https://play278.shinyapps.io", img:"https://jeehyoungkim-lab.github.io" },
+ { name:"Forest plots for Subgroups", url:"https://play273.shinyapps.io", img:"https://jeehyoungkim-lab.github.io" },
+ { name:"Baseline Table", url:"https://play275.shinyapps.io", img:"https://jeehyoungkim-lab.github.io" },
 ];
 
 const grid = document.getElementById("grid");
 
 // iframe 실행 함수
-function openApp(url) {
+function openApp(targetUrl) {
+  if(!targetUrl || targetUrl === "#") return;
   document.getElementById("grid").style.display = "none";
   document.getElementById("viewer").style.display = "flex";
-  document.getElementById("appFrame").src = url;
+  document.getElementById("appFrame").src = targetUrl;
   document.getElementById("mainTitle").style.display = "none";
 }
 
+// 타일 동적 생성
 apps.forEach(app => {
   const tile = document.createElement("div");
   tile.className = "tile-box";
 
-  // 제목 생성
-  const title = document.createElement("div");
-  title.className = "tile-title";
-  title.textContent = app.name;
+  // 내부 구조 생성
+  tile.innerHTML = `
+    <div class="tile-title">${app.name}</div>
+    <div class="tile-img-wrap">
+      <img src="${app.img}" class="tile-img">
+    </div>
+    <div class="tile-overlay"></div>
+  `;
 
-  // 이미지 래퍼 생성
-  const wrap = document.createElement("div");
-  wrap.className = "tile-img-wrap";
-  const img = document.createElement("img");
-  img.className = "tile-img";
-  img.src = app.img;
-  wrap.appendChild(img);
-
-  // 오버레이 및 버튼 생성
-  const overlay = document.createElement("div");
-  overlay.className = "tile-overlay";
-
-  // url이 배열인지 단일 문자열인지 확인 후 처리
+  const overlay = tile.querySelector(".tile-overlay");
+  
+  // url이 문자열이면 배열로 변환하여 처리
   const urlList = Array.isArray(app.url) ? app.url : [app.url];
   
   urlList.forEach((link, index) => {
     const btn = document.createElement("a");
     btn.href = "#";
     btn.className = "btn-link";
+    // 버튼 이름 설정 (여러 개일 때만 번호 표시)
     btn.textContent = urlList.length > 1 ? `Link ${index + 1}` : "Run App";
+    
     btn.onclick = (e) => {
       e.preventDefault();
       openApp(link);
@@ -187,9 +210,6 @@ apps.forEach(app => {
     overlay.appendChild(btn);
   });
 
-  tile.appendChild(title);
-  tile.appendChild(wrap);
-  tile.appendChild(overlay);
   grid.appendChild(tile);
 });
 
@@ -201,5 +221,6 @@ document.getElementById("backBtn").onclick = () => {
   document.getElementById("mainTitle").style.display = "block";
 };
 </script>
+
 </body>
 </html>
