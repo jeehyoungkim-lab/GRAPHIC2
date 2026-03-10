@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <title>Graphs for Research Articles Tools</title>
 <style>
-  /* 전체 레이아웃 유지 */
   html, body { height: 100%; }
   body { font-family: Arial, sans-serif; background-color: #fdfefe; margin:0; overflow-x: hidden; }
   h2 { color: #0F4E47; text-align:center; padding:20px; margin:0; }
@@ -57,23 +56,19 @@
     object-fit: fill;
   }
 
-  /* --- 버튼 크기 및 격자 구조 수정 --- */
   .tile-overlay {
     position: absolute;
     top: 40px;
     left: 0;
     width: 100%;
     height: calc(100% - 40px);
-    background: rgba(15, 78, 71, 0.6); /* 이미지 보이게 투명도 조정 */
-    
-    /* 버튼들을 2열 격자로 배치하고 높이를 꽉 채움 */
+    background: rgba(15, 78, 71, 0.6); 
     display: grid;
     grid-template-columns: 1fr 1fr; 
-    grid-auto-rows: 1fr; /* 버튼이 영역 높이를 균등하게 나눠 가짐 */
-    gap: 2px; /* 버튼 사이 경계선 */
-    
+    grid-auto-rows: 1fr; 
+    gap: 2px; 
     opacity: 0;
-    visibility: hidden; /* 평소엔 숨겨서 이미지 가림 방지 */
+    visibility: hidden; 
     transition: opacity 0.3s ease;
     z-index: 10;
   }
@@ -84,11 +79,9 @@
   }
 
   .btn-link {
-    background: #FDFEFE;
+    background: rgba(253, 254, 254, 0.9); /* 버튼 기본 배경도 약간 투명하게 조정 가능 */
     color: #0F4E47;
     text-decoration: none;
-    
-    /* 버튼 내부 글자 중앙 정렬 및 크기 */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -99,16 +92,15 @@
     box-sizing: border-box;
   }
 
-  /* 버튼 개수에 따른 배치 로직 */
-  .btn-link:only-child { grid-column: span 2; } /* 1개일 때 전체 차지 */
-  .btn-link:nth-child(3):last-child { grid-column: span 2; } /* 3개일 때 막내 가로 확장 */
+  .btn-link:only-child { grid-column: span 2; } 
+  .btn-link:nth-child(3):last-child { grid-column: span 2; } 
 
   .btn-link:hover {
-    background: #FFEB3B;
+    /* 노란색 투명도 적용 */
+    background: rgba(255, 235, 59, 0.85); 
     color: #000;
   }
 
-  /* 뷰어 영역 */
   #viewer { display:none; width:100%; height:100vh; flex-direction: column; }
   #viewer iframe { flex:1; width:100%; border:none; }
   #backBtn {
@@ -133,7 +125,7 @@
 const apps = [
  { name:"Boxplot and jitter plot", url:["https://play237.shinyapps.io/jitterboxplot4/", "#2", "#3"], img:"https://jeehyoungkim-lab.github.io/images/tool1.png" },
  { name:"Plot with error bar", url:["https://play240.shinyapps.io/pubr_error_bar4/", "#2"], img:"https://jeehyoungkim-lab.github.io/images/tool19.png" },
- { name:"Plot with significance", url:["https://play241.shinyapps.io/Plot_Significance4/", "#2", "#3", "#4", "#2", "#3"], img:"https://jeehyoungkim-lab.github.io/images/tool20.png" },
+ { name:"Plot with significance", url:["https://play241.shinyapps.io/Plot_Significance4/", "#2", "#3", "#4", "#5", "#6"], img:"https://jeehyoungkim-lab.github.io/images/tool20.png" },
  { name:"RainCloud plot", url:["https://play274.shinyapps.io/RainCloud_Plot/"], img:"https://jeehyoungkim-lab.github.io/images/raincloud.png" },
  { name:"Densitogram and Histogram", url:["https://play242.shinyapps.io/densitogram-histogram/"], img:"https://jeehyoungkim-lab.github.io/images/tool24.png" },
  { name:"Scatter plot with label", url:["https://play277.shinyapps.io/Scatter_name/"], img:"https://jeehyoungkim-lab.github.io/images/Scatter%20plot%20with%20name.png" },
@@ -183,7 +175,6 @@ apps.forEach(app => {
     const btn = document.createElement("a");
     btn.href = "#";
     btn.className = "btn-link";
-    // 높이가 3배가 되었으므로 텍스트도 잘 보입니다.
     btn.textContent = urlList.length > 1 ? `Link ${index + 1}` : "Run App";
     btn.onclick = (e) => {
       e.preventDefault();
