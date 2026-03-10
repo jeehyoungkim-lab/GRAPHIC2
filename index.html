@@ -2,9 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>GRAPHIC Tools</title>
+<title>Graphs for Research Articles Tools</title>
 <style>
-  html, body { height: 100%; margin:0; font-family: Arial, sans-serif; background-color: #fdfefe; }
+  /* [기본 스타일 유지] */
+  html, body { height: 100%; margin:0; font-family: Arial, sans-serif; background-color: #fdfefe; overflow-x: hidden; }
   h2 { color: #0F4E47; text-align:center; padding:20px; margin:0; }
 
   .grid {
@@ -23,90 +24,69 @@
     aspect-ratio: 1 / 1;
     position: relative;
     overflow: hidden;
+    cursor: pointer;
   }
 
   .tile-title {
-    height: 40px; /* 고정 높이 */
+    flex: 0 0 40px;
     color: #FDFEFE;
     font-weight: bold;
-    font-size: 14px;
+    font-size: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
-    text-align: center;
-    padding: 0 5px;
-    background-color: #0F4E47;
   }
 
-  /* 이미지 영역: 절대 위치를 사용하여 타일 하단을 꽉 채움 */
-  .tile-img-wrap {
-    position: absolute;
-    top: 40px; /* 타이틀 아래부터 */
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: #fff; /* 이미지가 로딩되기 전 배경색 */
-  }
+  .tile-img-wrap { flex: 1; width: 100%; position: relative; }
+  .tile-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill; }
 
-  .tile-img {
-    width: 100%;
-    height: 100%;
-    object-fit: fill; /* 원본 요청에 따라 꽉 채움 */
-    display: block;
-  }
-
-  /* 오버레이: 평소에는 아예 렌더링되지 않음 */
+  /* [버튼 오버레이 스타일 추가] */
   .tile-overlay {
     position: absolute;
-    top: 40px;
+    top: 40px; /* 제목 제외한 아래 영역 */
     left: 0;
     width: 100%;
     height: calc(100% - 40px);
-    background: rgba(15, 78, 71, 0.9);
     display: none; /* 평소엔 숨김 */
-    grid-template-columns: 1fr 1fr;
-    grid-auto-rows: 1fr;
-    gap: 2px;
-    z-index: 20;
+    grid-template-columns: 1fr 1fr; /* 2열 고정 */
+    grid-auto-rows: 1fr; /* 개수에 따라 높이 자동 배분 */
+    gap: 1px;
+    z-index: 10;
   }
 
-  /* 마우스 오버 시에만 오버레이 표시 */
-  .tile-box:hover .tile-overlay {
-    display: grid; 
-  }
+  /* 마우스 올릴 때만 버튼 레이어 보임 */
+  .tile-box:hover .tile-overlay { display: grid; }
 
   .btn-link {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: white;
+    background: rgba(255, 255, 255, 0.95);
     color: #0F4E47;
     text-decoration: none;
-    font-size: 14px;
+    font-size: 15px;
     font-weight: bold;
     border: 1px solid #0F4E47;
-    text-align: center;
-    padding: 2px;
   }
 
-  /* 버튼 배치 로직 */
-  .btn-link:only-child { grid-column: span 2; }
-  .btn-link:nth-child(3):last-child { grid-column: span 2; }
-  .btn-link:hover { background: #FFEB3B; color: #000; }
+  /* 버튼 개수별 예외 처리 */
+  .btn-link:only-child { grid-column: span 2; } /* 1개면 꽉 채움 */
+  .btn-link:nth-child(3):last-child { grid-column: span 2; } /* 3개면 마지막 버튼 길게 */
 
+  .btn-link:hover { background: #FFEB3B; color: black; }
+
+  /* [뷰어 스타일 유지] */
   #viewer { display:none; width:100%; height:100vh; flex-direction: column; }
   #viewer iframe { flex:1; width:100%; border:none; }
-  #backBtn {
-    background:#FDFEFE; color:#0F4E47; border:1px solid #0F4E47;
-    border-radius:8px; font-size:18px; font-weight:bold;
-    padding:10px 20px; margin:10px; cursor:pointer; align-self:flex-end;
-  }
+  #backBtn { background:#FDFEFE; color:#0F4E47; border:1px solid #0F4E47; border-radius:8px; font-size:18px; font-weight:bold; padding:10px 20px; margin:10px; cursor:pointer; align-self:flex-end; }
 </style>
 </head>
 <body>
 
 <h2 id="mainTitle">Graphs for Research Articles Tools</h2>
+
 <div id="grid" class="grid"></div>
+
 <div id="viewer">
   <button id="backBtn">🏠 Show List of GRAPHIC Tools</button>
   <iframe id="appFrame"></iframe>
@@ -116,7 +96,8 @@
 const apps = [
  { name:"Boxplot and jitter plot", url:"https://play237.shinyapps.io", img:"https://jeehyoungkim-lab.github.io" },
  { name:"Plot with error bar", url:"https://play240.shinyapps.io", img:"https://jeehyoungkim-lab.github.io" },
- { name:"Plot with significance", url:["https://play241.shinyapps.io", "https://play237.shinyapps.io"], img:"https://jeehyoungkim-lab.github.io" },
+ // 테스트용: url에 배열을 넣으면 버튼이 여러 개 생깁니다.
+ { name:"Plot with significance", url:["https://play241.shinyapps.io", "#2", "#3", "#4"], img:"https://jeehyoungkim-lab.github.io" },
  { name:"RainCloud plot", url:"https://play274.shinyapps.io", img:"https://jeehyoungkim-lab.github.io" },
  { name:"Densitogram and Histogram", url:"https://play242.shinyapps.io", img:"https://jeehyoungkim-lab.github.io" },
  { name:"Scatter plot with label", url:"https://play277.shinyapps.io", img:"https://jeehyoungkim-lab.github.io" },
@@ -146,10 +127,11 @@ apps.forEach(app => {
   const tile = document.createElement("div");
   tile.className = "tile-box";
 
+  // 기본 제목과 이미지 구성
   tile.innerHTML = `
     <div class="tile-title">${app.name}</div>
     <div class="tile-img-wrap">
-      <img src="${app.img}" class="tile-img" loading="lazy">
+      <img src="${app.img}" class="tile-img">
     </div>
     <div class="tile-overlay"></div>
   `;
@@ -157,14 +139,20 @@ apps.forEach(app => {
   const overlay = tile.querySelector(".tile-overlay");
   const urlList = Array.isArray(app.url) ? app.url : [app.url];
   
+  // 버튼 생성 루프
   urlList.forEach((link, index) => {
     const btn = document.createElement("a");
-    btn.href = "javascript:void(0);";
     btn.className = "btn-link";
     btn.textContent = urlList.length > 1 ? `Link ${index + 1}` : "Run App";
-    btn.onclick = () => openApp(link);
+    btn.onclick = (e) => {
+      e.stopPropagation(); // 타일 자체 클릭 이벤트 방지
+      openApp(link);
+    };
     overlay.appendChild(btn);
   });
+
+  // 타일 자체를 눌러도 첫 번째 링크 실행 (기존 편의성 유지)
+  tile.onclick = () => openApp(urlList[0]);
 
   grid.appendChild(tile);
 });
