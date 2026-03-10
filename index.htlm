@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Graphs for Research Articles: Precision, Honesty, and Informative Communication(GRAPHIC) Tools</title>
+<style>
+  /* 전체 레이아웃 기본 */
+  html, body { height: 100%; }
+  body { font-family: Arial, sans-serif; background-color: #fdfefe; margin:0; overflow-x: hidden; }
+
+  h2 { color: #0F4E47; text-align:center; padding:20px; margin:0; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 15px;
+    padding: 20px;
+    box-sizing: border-box;
+    max-width: 100%;
+  }
+
+  .tile-box {
+    background-color: #0F4E47;
+    border: 1px solid #ccc;
+    display: flex;
+    flex-direction: column;
+    aspect-ratio: 1 / 1;
+    box-sizing: border-box;
+    position: relative; /* overlay 기준점 */
+    overflow: hidden;
+  }
+
+  .tile-title {
+    flex: 0 0 40px;
+    color: #FDFEFE;
+    font-weight: bold;
+    font-size: 14px; /* 글자 크기 살짝 조정 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 0 5px;
+  }
+
+  .tile-img-wrap {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .tile-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+  }
+
+  /* --- 추가된 오버레이 스타일 --- */
+  .tile-overlay {
+    position: absolute;
+    top: 40px; /* 제목 아래부터 시작 */
+    left: 0;
+    width: 100%;
+    height: calc(100% - 40px);
+    background: rgba(15, 78, 71, 0.85); /* 브랜드 컬러 배경 */
+    display: flex;
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: center;
+    gap: 8px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    padding: 10px;
+    box-sizing: border-box;
+    z-index: 10;
+  }
+
+  .tile-box:hover .tile-overlay {
+    opacity: 1;
+  }
+
+  .btn-link {
+    background: #FDFEFE;
+    color: #0F4E47;
+    text-decoration: none;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    min-width: 70px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+
+  .btn-link:hover {
+    background: #FFEB3B;
+  }
+
+  /* 뷰어 영역 */
+  #viewer { display:none; width:100%; height:100vh; flex-direction: column; }
+  #viewer iframe { flex:1; width:100%; border:none; }
+  #backBtn {
+    background:#FDFEFE; color:#0F4E47; border:1px solid #0F4E47;
+    border-radius:8px; font-size:18px; font-weight:bold;
+    padding:10px 20px; margin:10px; cursor:pointer; align-self:flex-end;
+  }
+</style>
+</head>
+<body>
+
+<h2 id="mainTitle">Graphs for Research Articles: Precision, Honesty, and Informative Communication(GRAPHIC) Tools</h2>
+
+<div id="grid" class="grid"></div>
+
+<div id="viewer">
+  <button id="backBtn">🏠 Show List of GRAPHIC Tools</button>
+  <iframe id="appFrame"></iframe>
+</div>
+
+<script>
+// 데이터 구조: url 부분에 ["주소1", "주소2"] 처럼 배열을 넣으면 버튼이 여러 개 생깁니다.
+const apps = [
+ { name:"Boxplot and jitter plot", url:"https://play237.shinyapps.io/jitterboxplot4/", img:"https://jeehyoungkim-lab.github.io/images/tool1.png" },
+ { name:"Plot with error bar", url:"https://play240.shinyapps.io/pubr_error_bar4/", img:"https://jeehyoungkim-lab.github.io/images/tool19.png" },
+ { name:"Plot with significance", url:["https://play241.shinyapps.io/Plot_Significance4/", "#link2", "#link3", "#link4"], img:"https://jeehyoungkim-lab.github.io/images/tool20.png" }, // 예시: 4개 주소
+ { name:"RainCloud plot", url:"https://play274.shinyapps.io/RainCloud_Plot/", img:"https://jeehyoungkim-lab.github.io/images/raincloud.png" },
+ { name:"Densitogram and Histogram", url:"https://play242.shinyapps.io/densitogram-histogram/", img:"https://jeehyoungkim-lab.github.io/images/tool24.png" },
+ { name:"Scatter plot with label", url:"https://play277.shinyapps.io/Scatter_name/", img:"https://jeehyoungkim-lab.github.io/images/Scatter%20plot%20with%20name.png" },
+ { name:"Matrix Correlations", url:"https://play276.shinyapps.io/MatrixCorrelations/", img:"https://jeehyoungkim-lab.github.io/images/Matrix%20Correlations.png" },
+ { name:"LOWESS", url:"https://play239.shinyapps.io/LOWESS4/", img:"https://jeehyoungkim-lab.github.io/images/tool7.png" },
+ { name:"count bar with CI", url:"https://play234.shinyapps.io/count_CI/", img:"https://jeehyoungkim-lab.github.io/images/Count%20bar%20with%20CI.PNG" },
+ { name:"Matrix bubble plot", url:"https://play120.shinyapps.io/D_Matrix_Bubble/", img:"https://jeehyoungkim-lab.github.io/images/Matrix%20bubble%20plot.png" },
+ { name:"Alluvial Diagrams(1)", url:"https://play235.shinyapps.io/D_Alluvial_Diagrams/", img:"https://jeehyoungkim-lab.github.io/images/alluvial%20plot.png" },
+ { name:"Alluvial Diagrams(2)", url:"https://play236.shinyapps.io/Alluvial_Diagrams/", img:"https://jeehyoungkim-lab.github.io/images/Alluvial-Diagrams(II).PNG" },
+ { name:"Kaplan-Meier curve", url:"https://play236.shinyapps.io/survival4/", img:"https://raw.githubusercontent.com/jeehyoungkim-lab/images/288aaf842cb54b86ff917204ab6a4423377ce192/tool2.svg" },
+ { name:"Coefficients Plot", url:"https://play278.shinyapps.io/Coefficients_Plot/", img:"https://jeehyoungkim-lab.github.io/images/Coefficients%20Plot.PNG" },
+ { name:"Forest plots for Subgroups", url:"https://play273.shinyapps.io/Forest4Subgroups/", img:"https://jeehyoungkim-lab.github.io/images/Forest%20plots%20for%20Subgroups.PNG" },
+ { name:"Baseline Table", url:"https://play275.shinyapps.io/D_Baseline/", img:"https://jeehyoungkim-lab.github.io/images/table1.png" },
+];
+
+const grid = document.getElementById("grid");
+
+// iframe 실행 함수
+function openApp(url) {
+  document.getElementById("grid").style.display = "none";
+  document.getElementById("viewer").style.display = "flex";
+  document.getElementById("appFrame").src = url;
+  document.getElementById("mainTitle").style.display = "none";
+}
+
+apps.forEach(app => {
+  const tile = document.createElement("div");
+  tile.className = "tile-box";
+
+  // 제목 생성
+  const title = document.createElement("div");
+  title.className = "tile-title";
+  title.textContent = app.name;
+
+  // 이미지 래퍼 생성
+  const wrap = document.createElement("div");
+  wrap.className = "tile-img-wrap";
+  const img = document.createElement("img");
+  img.className = "tile-img";
+  img.src = app.img;
+  wrap.appendChild(img);
+
+  // 오버레이 및 버튼 생성
+  const overlay = document.createElement("div");
+  overlay.className = "tile-overlay";
+
+  // url이 배열인지 단일 문자열인지 확인 후 처리
+  const urlList = Array.isArray(app.url) ? app.url : [app.url];
+  
+  urlList.forEach((link, index) => {
+    const btn = document.createElement("a");
+    btn.href = "#";
+    btn.className = "btn-link";
+    btn.textContent = urlList.length > 1 ? `Link ${index + 1}` : "Run App";
+    btn.onclick = (e) => {
+      e.preventDefault();
+      openApp(link);
+    };
+    overlay.appendChild(btn);
+  });
+
+  tile.appendChild(title);
+  tile.appendChild(wrap);
+  tile.appendChild(overlay);
+  grid.appendChild(tile);
+});
+
+// 돌아가기 버튼
+document.getElementById("backBtn").onclick = () => {
+  document.getElementById("viewer").style.display = "none";
+  document.getElementById("grid").style.display = "grid";
+  document.getElementById("appFrame").src = "";
+  document.getElementById("mainTitle").style.display = "block";
+};
+</script>
+</body>
+</html>
